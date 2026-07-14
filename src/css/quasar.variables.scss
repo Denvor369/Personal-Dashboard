@@ -1,25 +1,28 @@
 // Quasar Sass (& SCSS) Variables
 // --------------------------------------------------
-// To customize the look and feel of this app, you can override
-// the Sass/SCSS variables found in Quasar's source Sass/SCSS files.
+// Injected into every .vue/.scss file. Brand colors below drive Quasar's own
+// components (q-btn color="primary", etc.); the semantic `--color-*` CSS
+// custom properties in tokens.scss drive the design system.
 
-// Check documentation for full list of Quasar variables
+// Brand palette
+$brand-cream: #fff4e1;
+$brand-mint: #89d7b7;
+$brand-teal: #428475;
+$brand-deep: #1a312c;
 
-// Your own variables (that are declared here) and Quasar's own
-// ones will be available out of the box in your .vue/.scss/.sass files
+$primary: $brand-deep;
+$secondary: $brand-mint;
+$accent: $brand-teal;
 
-// It's highly recommended to change the default colors
-// to match your app's branding.
-// Tip: Use the "Theme Builder" on Quasar's documentation website.
+$dark: #1a312c;
+$dark-page: #0f211d;
 
-$primary: #4f46e5;
-$secondary: #64748b;
-$accent: #7c3aed;
+$positive: $brand-teal;
+$negative: #c1362f;
+$info: $brand-mint;
+$warning: #c8801e;
 
-$dark: #1d1d1d;
-$dark-page: #121212;
-
-$positive: #21ba45;
-$negative: #c10015;
-$info: #31ccec;
-$warning: #f2c037;
+// Breakpoints (Sass vars — usable in @media; CSS vars can't be)
+$bp-mobile: 600px;
+$bp-tablet: 1024px;
+$bp-desktop: 1440px;

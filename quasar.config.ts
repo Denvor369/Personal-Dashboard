@@ -1,9 +1,9 @@
 import { defineConfig } from '#q-app';
 
 export default defineConfig(() => ({
-  boot: ['supabase', 'vue-query'],
-  css: ['app.scss'],
-  extras: ['roboto-font', 'material-icons'],
+  boot: ['vue-query'],
+  css: ['app.scss', 'modules.scss'],
+  extras: ['material-icons'],
 
   build: {
     typescript: {
@@ -35,7 +35,7 @@ export default defineConfig(() => ({
 
   framework: {
     config: {},
-    plugins: [],
+    plugins: ['Notify', 'Dialog'],
   },
 
   animations: [],

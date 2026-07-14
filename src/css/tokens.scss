@@ -1,0 +1,149 @@
+// Design tokens — semantic CSS custom properties.
+// Consume these everywhere; never hardcode brand hex values in components.
+
+:root {
+  --cream: #fff4e1;
+  --mint: #89d7b7;
+  --teal: #428475;
+  --deep-green: #1a312c;
+
+  // Semantic colors
+  --color-background: var(--cream);
+  --color-shell: var(--cream);
+  --color-surface: var(--cream);
+  --color-surface-raised: color-mix(in srgb, var(--cream) 84%, var(--mint));
+  --color-surface-soft: color-mix(in srgb, var(--cream) 70%, var(--mint));
+  --color-surface-accent: var(--mint);
+  --color-primary: var(--teal);
+  --color-primary-hover: var(--deep-green);
+  --color-secondary: var(--teal);
+  --color-text: var(--deep-green);
+  --color-text-secondary: color-mix(in srgb, var(--deep-green) 82%, transparent);
+  --color-text-muted: color-mix(in srgb, var(--deep-green) 70%, transparent);
+  --color-border: var(--deep-green);
+  --color-border-strong: var(--deep-green);
+  --color-focus: var(--teal);
+  --color-danger: #c1362f;
+  --color-warning: #a86711;
+  --color-progress-track: color-mix(in srgb, var(--cream) 70%, var(--mint));
+  --color-progress-fill: var(--mint);
+  --color-focus-progress-track: color-mix(in srgb, var(--cream) 55%, transparent);
+  --color-focus-progress-fill: var(--deep-green);
+  --color-button-primary-bg: var(--teal);
+  --color-button-primary-text: var(--cream);
+  --color-button-secondary-bg: var(--mint);
+  --color-button-secondary-text: var(--deep-green);
+  --color-button-secondary-hover: #77c9a6;
+  --color-strong-surface: var(--deep-green);
+  --color-on-strong-surface: var(--cream);
+  --color-focus-card: var(--mint);
+  --color-on-focus-card: var(--deep-green);
+  --color-quick-card: var(--teal);
+  --color-on-quick-card: var(--cream);
+  --color-nav-bg: var(--cream);
+  --color-nav-active-bg: var(--teal);
+  --color-nav-active-text: var(--cream);
+  --color-nav-hover: color-mix(in srgb, var(--mint) 38%, transparent);
+  --color-document-surface: #fff;
+  --color-document-text: #1f1f1f;
+  --color-document-border: rgba(0, 0, 0, 0.08);
+  --shadow-document: 0 2px 12px rgba(0, 0, 0, 0.18);
+
+  // Brand raw (for showcase / accents)
+  --brand-cream: var(--cream);
+  --brand-mint: var(--mint);
+  --brand-teal: var(--teal);
+  --brand-deep: var(--deep-green);
+
+  // On-color text (readable foreground on filled brand surfaces)
+  --color-on-primary: var(--cream);
+  --color-on-secondary: var(--cream);
+  --color-on-mint: var(--deep-green);
+  --color-on-dark: var(--cream);
+
+  // Spacing
+  --space-xxs: 2px;
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 24px;
+  --space-2xl: 32px;
+  --space-3xl: 48px;
+  --space-4xl: 64px;
+
+  // Compact aliases used by the dashboard bento grid
+  --space-1: var(--space-xs);
+  --space-2: var(--space-sm);
+  --space-3: var(--space-md);
+  --space-4: var(--space-lg);
+  --space-5: var(--space-xl);
+  --space-6: var(--space-2xl);
+  --space-7: 40px;
+  --space-8: var(--space-3xl);
+
+  // Radius
+  --radius-outer: 36px;
+  --radius-lg: 28px;
+  --radius-md: 22px;
+  --radius-sm: 14px;
+  --radius-pill: 999px;
+  --radius-xl: var(--radius-lg);
+  --radius-shell: 44px;
+
+  // Borders
+  --border-width: 1px;
+  --border-thin: var(--border-width) solid var(--color-border);
+
+  // Shadows (minimal)
+  --shadow-none: none;
+  --shadow-sm: 0 1px 2px rgba(26, 49, 44, 0.06);
+  --shadow-md: 0 6px 20px rgba(26, 49, 44, 0.08);
+
+  // Transitions
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --transition-fast: 150ms;
+  --transition-base: 180ms;
+  --transition-slow: 220ms;
+  --duration-stagger: 40ms;
+  --duration-quick: 150ms;
+  --duration-card: 200ms;
+  --duration-fast: 250ms;
+  --duration-panel: 280ms;
+  --duration-slow: 400ms;
+  --ease-smooth-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: ease-in-out;
+  --ease-linear: linear;
+  --distance-micro: 4px;
+  --distance-base: 8px;
+  --distance-medium: 12px;
+  --scale-press: 0.97;
+  --scale-panel: 0.96;
+  --blur-small: 2px;
+  --blur-medium: 3px;
+  --tabs-dur: var(--duration-fast);
+  --tabs-ease: var(--ease-smooth-out);
+  --acc-expand: var(--duration-fast);
+  --acc-collapse: var(--duration-fast);
+  --acc-chevron: var(--duration-fast);
+  --acc-ease: var(--ease-smooth-out);
+
+  // Font roles
+  --font-heading: 'Micuale', ui-sans-serif, system-ui, sans-serif;
+  --font-body: 'Charsey', Georgia, 'Times New Roman', serif;
+  --font-control: 'Altere', ui-sans-serif, system-ui, sans-serif;
+
+  // Content widths
+  --content-width: 1200px;
+  --content-width-narrow: 760px;
+
+  // Layout heights
+  --header-height: 64px;
+  --nav-desktop-height: 64px;
+  --nav-mobile-height: 64px;
+
+  // Breakpoints (informational mirror of the Sass vars)
+  --bp-mobile: 600px;
+  --bp-tablet: 1024px;
+  --bp-desktop: 1440px;
+}
