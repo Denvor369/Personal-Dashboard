@@ -16,14 +16,16 @@
             {{ balancesHidden ? 'Show' : 'Hide' }}
           </AppButton>
           <AppButton variant="ghost" icon-left="qr_code_2" @click="qrOpen = true">My QR</AppButton>
+          <AppButton variant="ghost" icon-left="tune" @click="openSetup">Set up</AppButton>
           <AppButton variant="dark" icon-left="add" @click="openCreate">Add record</AppButton>
         </div>
       </template>
     </DashboardPageHeader>
 
     <div class="bank-privacy-note" role="note">
-      <q-icon name="lock_outline" />
-      <span><strong>Manual tracker.</strong> Stored in this browser and not connected to ABA.</span>
+      <q-icon :name="showingDemoData ? 'info' : 'lock_outline'" />
+      <span v-if="showingDemoData"><strong>Demo data is showing.</strong> Choose Set up to replace it with your balance and savings goal.</span>
+      <span v-else><strong>Manual tracker.</strong> Stored in this browser and not connected to ABA.</span>
     </div>
 
     <div class="bank-toolbar">
@@ -572,6 +574,49 @@
       </AppCard>
     </section>
 
+    <q-dialog v-model="setupOpen">
+      <q-card class="bank-dialog">
+        <form @submit.prevent="saveSetup">
+          <header>
+            <div>
+              <p class="dashboard-eyebrow">Your money</p>
+              <h2>Set up your numbers</h2>
+            </div>
+            <AppIconButton icon="close" label="Close" @click="setupOpen = false" />
+          </header>
+
+          <label class="workspace-field">
+            <span class="workspace-field__label">Current ABA balance (USD)</span>
+            <q-input v-model.number="setupDraft.balance" outlined autofocus type="number" step="0.01" prefix="$" />
+          </label>
+
+          <label class="workspace-field">
+            <span class="workspace-field__label">Savings goal</span>
+            <q-input v-model="setupDraft.goalName" outlined placeholder="e.g. Emergency Fund" />
+          </label>
+          <div class="bank-form-row">
+            <label class="workspace-field">
+              <span class="workspace-field__label">Goal target (USD)</span>
+              <q-input v-model.number="setupDraft.goalTarget" outlined type="number" min="1" step="0.01" prefix="$" />
+            </label>
+            <label class="workspace-field">
+              <span class="workspace-field__label">Already saved (USD)</span>
+              <q-input v-model.number="setupDraft.goalSaved" outlined type="number" min="0" step="0.01" prefix="$" />
+            </label>
+          </div>
+
+          <p class="bank-dialog__hint">
+            <template v-if="showingDemoData">Saving removes the example transactions and coach items. Records you added yourself stay.</template>
+            <template v-else>Future records will update this balance automatically.</template>
+          </p>
+          <footer>
+            <AppButton variant="ghost" @click="setupOpen = false">Cancel</AppButton>
+            <AppButton type="submit" :disabled="!setupValid">Save my numbers</AppButton>
+          </footer>
+        </form>
+      </q-card>
+    </q-dialog>
+
     <q-dialog v-model="createOpen">
       <q-card class="bank-dialog">
         <form @submit.prevent="saveRecord">
@@ -715,17 +760,22 @@
           </div>
           <label class="workspace-field">
             <span class="workspace-field__label">Goal name</span>
-            <q-input v-model="goalDraft.name" outlined />
+            <q-input v-model="goalDraft.name" outlined placeholder="e.g. Emergency Fund" />
           </label>
-          <label class="workspace-field">
-            <span class="workspace-field__label">Target amount (USD)</span>
-            <q-input v-model.number="goalDraft.target" outlined type="number" min="1" prefix="$" />
-          </label>
+          <div class="bank-form-row">
+            <label class="workspace-field">
+              <span class="workspace-field__label">Target amount (USD)</span>
+              <q-input v-model.number="goalDraft.target" outlined type="number" min="1" prefix="$" />
+            </label>
+            <label class="workspace-field">
+              <span class="workspace-field__label">Saved so far (USD)</span>
+              <q-input v-model.number="goalDraft.saved" outlined type="number" min="0" prefix="$" />
+            </label>
+          </div>
+          <p class="bank-dialog__hint">Set your own goal, target, and how much you've saved already.</p>
           <footer>
             <AppButton variant="ghost" @click="goalEditOpen = false">Cancel</AppButton>
-            <AppButton type="submit" :disabled="!goalDraft.name.trim() || goalDraft.target <= 0">
-              Save goal
-            </AppButton>
+            <AppButton type="submit" :disabled="!goalDraftValid">Save goal</AppButton>
           </footer>
         </form>
       </q-card>
@@ -769,6 +819,8 @@ import {
   bankRecordKinds,
   initialBankRecords,
   isBankRecord,
+  openingBalanceForCurrent,
+  openingBankBalance,
   spendTiers,
   summarizeBank,
 } from '@/data/bank.mock';
@@ -791,6 +843,7 @@ import {
 import type { RecurringBill, SavingsGoal, ThinkTwiceItem } from '@/data/coach.mock';
 
 const storageKey = 'personal-dashboard-bank-records-v1';
+const settingsStorageKey = 'personal-dashboard-bank-settings-v1';
 const coachStorageKey = 'personal-dashboard-bank-coach-v1';
 const peopleKinds: BankRecordKind[] = ['lent', 'borrowed', 'debt_received', 'debt_repaid'];
 const $q = useQuasar();
@@ -866,7 +919,21 @@ function loadRecords(): BankRecord[] {
   }
 }
 
+function loadOpeningBalance() {
+  try {
+    const saved = localStorage.getItem(settingsStorageKey);
+    if (saved === null) return openingBankBalance;
+    const parsed = Number(saved);
+    return Number.isFinite(parsed) ? parsed : openingBankBalance;
+  } catch {
+    return openingBankBalance;
+  }
+}
+
 const records = ref(loadRecords());
+const demoRecordIds = new Set(initialBankRecords.map(({ id }) => id));
+const showingDemoData = ref(records.value.some(({ id }) => demoRecordIds.has(id)));
+const openingBalance = ref(loadOpeningBalance());
 const draft = reactive<{
   kind: BankRecordKind;
   label: string;
@@ -882,7 +949,7 @@ const draft = reactive<{
   person: '',
   tier: 'important',
 });
-const summary = computed(() => summarizeBank(records.value, undefined, range.value));
+const summary = computed(() => summarizeBank(records.value, openingBalance.value, range.value));
 const analytics = computed(() => analyzeBank(records.value, range.value));
 const stats = computed(() => [
   { label: 'ABA balance', value: summary.value.balance, detail: 'Estimated USD balance' },
@@ -926,6 +993,13 @@ function loadCoach(): CoachState {
     reminderIndex: 0,
   };
 }
+const coachDataWasSaved = (() => {
+  try {
+    return localStorage.getItem(coachStorageKey) !== null;
+  } catch {
+    return false;
+  }
+})();
 const coachInit = loadCoach();
 const savingsGoal = reactive<SavingsGoal>(coachInit.goal);
 const thinkTwice = ref<ThinkTwiceItem[]>(coachInit.thinkTwice);
@@ -957,6 +1031,55 @@ function persistCoach() {
   } catch {
     // ignore quota / privacy-mode failures
   }
+}
+
+const setupOpen = ref(false);
+const setupDraft = reactive<{
+  balance: number | null;
+  goalName: string;
+  goalTarget: number | null;
+  goalSaved: number | null;
+}>({ balance: null, goalName: '', goalTarget: null, goalSaved: null });
+const setupValid = computed(
+  () =>
+    setupDraft.balance !== null &&
+    Number.isFinite(setupDraft.balance) &&
+    setupDraft.goalName.trim() !== '' &&
+    setupDraft.goalTarget !== null &&
+    setupDraft.goalTarget > 0 &&
+    setupDraft.goalSaved !== null &&
+    setupDraft.goalSaved >= 0,
+);
+function openSetup() {
+  Object.assign(setupDraft, {
+    balance: summary.value.balance,
+    goalName: savingsGoal.name,
+    goalTarget: savingsGoal.target,
+    goalSaved: savingsGoal.saved,
+  });
+  setupOpen.value = true;
+}
+function saveSetup() {
+  if (!setupValid.value || setupDraft.balance === null || setupDraft.goalTarget === null || setupDraft.goalSaved === null) return;
+
+  if (showingDemoData.value) {
+    records.value = records.value.filter(({ id }) => !demoRecordIds.has(id));
+    if (!coachDataWasSaved) {
+      thinkTwice.value = [];
+      bills.value = [];
+    }
+    showingDemoData.value = false;
+    persist();
+  }
+
+  openingBalance.value = openingBalanceForCurrent(records.value, setupDraft.balance);
+  localStorage.setItem(settingsStorageKey, String(openingBalance.value));
+  savingsGoal.name = setupDraft.goalName.trim();
+  savingsGoal.target = roundMoney(setupDraft.goalTarget);
+  savingsGoal.saved = roundMoney(setupDraft.goalSaved);
+  persistCoach();
+  setupOpen.value = false;
+  $q.notify({ type: 'positive', message: 'Your bank numbers are ready', timeout: 1600 });
 }
 
 const savedRatio = computed(() =>
@@ -1102,11 +1225,12 @@ function confirmAddSavings() {
 }
 
 const goalEditOpen = ref(false);
-const goalDraft = reactive({ name: '', target: 0, icon: 'savings' });
+const goalDraft = reactive({ name: '', target: 0, saved: 0, icon: 'savings' });
 function openGoalEdit() {
   Object.assign(goalDraft, {
     name: savingsGoal.name,
     target: savingsGoal.target,
+    saved: savingsGoal.saved,
     icon: savingsGoal.icon,
   });
   goalEditOpen.value = true;
@@ -1115,14 +1239,18 @@ function applyGoalPreset(preset: { name: string; icon: string }) {
   goalDraft.name = preset.name;
   goalDraft.icon = preset.icon;
 }
+const goalDraftValid = computed(
+  () => goalDraft.name.trim() !== '' && goalDraft.target > 0 && goalDraft.saved >= 0,
+);
 function saveGoal() {
-  if (!goalDraft.name.trim() || goalDraft.target <= 0) return;
+  if (!goalDraftValid.value) return;
   savingsGoal.name = goalDraft.name.trim();
   savingsGoal.target = roundMoney(goalDraft.target);
+  savingsGoal.saved = roundMoney(Math.max(0, goalDraft.saved));
   savingsGoal.icon = goalDraft.icon;
   persistCoach();
   goalEditOpen.value = false;
-  $q.notify({ type: 'positive', message: 'Savings goal updated', timeout: 1400 });
+  celebrate('Savings goal updated');
 }
 
 // ----- think twice actions -----
@@ -1416,6 +1544,10 @@ function downloadQr() {
   display: flex;
   align-items: center;
   gap: var(--space-2);
+}
+.bank-header-actions {
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 .bank-toolbar {
   justify-content: space-between;
@@ -2687,7 +2819,7 @@ function downloadQr() {
     width: 100%;
   }
   .bank-header-actions > :deep(.app-btn) {
-    flex: 1;
+    flex: 1 1 calc(50% - var(--space-1));
   }
   .bank-toolbar {
     align-items: stretch;

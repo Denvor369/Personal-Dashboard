@@ -147,6 +147,14 @@ export const initialBankRecords: BankRecord[] = [
 
 const money = (value: number) => Math.round(value * 100) / 100;
 
+export function openingBalanceForCurrent(records: BankRecord[], currentBalance: number) {
+  const recordedChange = records.reduce(
+    (total, record) => total + record.amount * bankBalanceEffect[record.kind],
+    0,
+  );
+  return money(currentBalance - recordedChange);
+}
+
 export interface BankDateRange {
   start: string; // inclusive YYYY-MM-DD
   end: string; // inclusive YYYY-MM-DD

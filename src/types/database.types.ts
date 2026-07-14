@@ -53,6 +53,36 @@ export interface Database {
         };
         Relationships: Relationship[];
       };
+      connected_accounts: {
+        Row: {
+          access_token: string;
+          account_label: string;
+          created_at: string;
+          id: string;
+          provider: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          access_token: string;
+          account_label?: string;
+          created_at?: string;
+          id?: string;
+          provider: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          access_token?: string;
+          account_label?: string;
+          created_at?: string;
+          id?: string;
+          provider?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: Relationship[];
+      };
       inbox_items: {
         Row: {
           archived: boolean;

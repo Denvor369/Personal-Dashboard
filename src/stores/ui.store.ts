@@ -1,50 +1,94 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
 import { Dark } from 'quasar';
+import { applyTheme, resolveAppearance, themeRegistry } from '@/themes/theme.registry';
+import type {
+  AppearancePreference,
+  BrandThemeId,
+  ResolvedAppearance,
+  UiThemeSettings,
+} from '@/themes/theme.types';
 
-export type Theme = 'light' | 'dark';
+export type Theme = ResolvedAppearance;
+export type ThemePreference = AppearancePreference;
 
-const themeKey = 'personal-dashboard-theme';
+const settingsKey = 'personal-dashboard-ui-theme';
+const legacyThemeKey = 'personal-dashboard-theme';
+const defaults: UiThemeSettings = { brandTheme: 'botanical', appearance: 'system' };
+
+function readSettings(): UiThemeSettings {
+  try {
+    const parsed = JSON.parse(
+      localStorage.getItem(settingsKey) ?? 'null',
+    ) as Partial<UiThemeSettings>;
+    const legacyAppearance = localStorage.getItem(legacyThemeKey);
+    return {
+      brandTheme:
+        parsed?.brandTheme && parsed.brandTheme in themeRegistry
+          ? parsed.brandTheme
+          : defaults.brandTheme,
+      appearance:
+        parsed?.appearance === 'light' ||
+        parsed?.appearance === 'dark' ||
+        parsed?.appearance === 'system'
+          ? parsed.appearance
+          : legacyAppearance === 'light' ||
+              legacyAppearance === 'dark' ||
+              legacyAppearance === 'system'
+            ? legacyAppearance
+            : defaults.appearance,
+    };
+  } catch {
+    return defaults;
+  }
+}
 
 export const useUiStore = defineStore('ui', () => {
-  const sidebarOpen = ref(true);
-  const sidebarCollapsed = ref(false);
-  const mobileNavigationVisible = ref(true);
-  const theme = ref<Theme>(localStorage.getItem(themeKey) === 'dark' ? 'dark' : 'light');
+  const initial = readSettings();
+  const brandTheme = ref<BrandThemeId>(initial.brandTheme);
+  const appearance = ref<AppearancePreference>(initial.appearance);
+  const systemDark = window.matchMedia('(prefers-color-scheme: dark)');
+  const theme = ref<Theme>(resolveAppearance(appearance.value, systemDark.matches));
 
-  Dark.set(theme.value === 'dark');
-
-  function toggleSidebar() {
-    sidebarOpen.value = !sidebarOpen.value;
+  function sync(persist = true) {
+    theme.value = resolveAppearance(appearance.value, systemDark.matches);
+    Dark.set(theme.value === 'dark');
+    applyTheme(brandTheme.value, theme.value);
+    if (persist)
+      localStorage.setItem(
+        settingsKey,
+        JSON.stringify({ brandTheme: brandTheme.value, appearance: appearance.value }),
+      );
   }
 
-  function setSidebarOpen(value: boolean) {
-    sidebarOpen.value = value;
+  function setBrandTheme(nextTheme: BrandThemeId) {
+    brandTheme.value = nextTheme;
+    sync();
   }
 
-  function toggleSidebarCollapsed() {
-    sidebarCollapsed.value = !sidebarCollapsed.value;
-  }
-
-  function setMobileNavigationVisible(value: boolean) {
-    mobileNavigationVisible.value = value;
+  function setAppearance(nextAppearance: AppearancePreference) {
+    appearance.value = nextAppearance;
+    sync();
   }
 
   function toggleTheme() {
-    theme.value = theme.value === 'dark' ? 'light' : 'dark';
-    Dark.set(theme.value === 'dark');
-    localStorage.setItem(themeKey, theme.value);
+    setAppearance(theme.value === 'dark' ? 'light' : 'dark');
   }
 
+  systemDark.addEventListener('change', () => {
+    if (appearance.value === 'system') sync(false);
+  });
+
+  sync(false);
+
   return {
-    sidebarOpen,
-    sidebarCollapsed,
-    mobileNavigationVisible,
+    brandTheme,
+    appearance,
     theme,
-    toggleSidebar,
-    setSidebarOpen,
-    toggleSidebarCollapsed,
-    setMobileNavigationVisible,
+    preference: appearance,
+    setBrandTheme,
+    setAppearance,
+    setTheme: setAppearance,
     toggleTheme,
   };
 });

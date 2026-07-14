@@ -1,0 +1,292 @@
+// Shared motion utilities. Keep movement short, transform-based, and optional.
+
+body,
+.dashboard-page,
+.dashboard-shell,
+.dashboard-header,
+.dashboard-card,
+.app-card,
+.q-field__control,
+.q-menu,
+.q-dialog__inner > * {
+  transition:
+    color var(--duration-card) var(--ease-smooth-out),
+    background-color var(--duration-card) var(--ease-smooth-out),
+    border-color var(--duration-card) var(--ease-smooth-out),
+    box-shadow var(--duration-card) var(--ease-smooth-out);
+}
+
+button,
+.q-btn,
+a[role='button'] {
+  transition:
+    color var(--duration-quick) var(--ease-smooth-out),
+    background-color var(--duration-quick) var(--ease-smooth-out),
+    border-color var(--duration-quick) var(--ease-smooth-out),
+    opacity var(--duration-quick) var(--ease-smooth-out),
+    transform var(--duration-quick) var(--ease-smooth-out);
+}
+
+button:active:not(:disabled),
+.q-btn:active:not(.disabled) {
+  transform: scale(var(--scale-press));
+}
+
+:focus-visible {
+  outline-color: var(--color-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-focus) 22%, transparent);
+  transition:
+    outline-color var(--duration-quick) var(--ease-smooth-out),
+    box-shadow var(--duration-quick) var(--ease-smooth-out);
+}
+
+.dashboard-header__actions .q-icon,
+.mobile-dashboard-nav__add .q-icon {
+  transition: transform var(--duration-quick) var(--ease-smooth-out);
+}
+.dashboard-header__actions .q-btn:hover .q-icon {
+  transform: scale(1.08) rotate(4deg);
+}
+.mobile-dashboard-nav__add:active {
+  transform: scale(var(--scale-press));
+}
+
+.dashboard-card,
+.app-card {
+  transition:
+    transform var(--duration-card) var(--ease-smooth-out),
+    color var(--duration-card) var(--ease-smooth-out),
+    background-color var(--duration-card) var(--ease-smooth-out),
+    border-color var(--duration-card) var(--ease-smooth-out),
+    box-shadow var(--duration-card) var(--ease-smooth-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .dashboard-card:hover,
+  .app-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+}
+
+// Route content moves; the persistent DashboardShell and navigation do not.
+.dashboard-route-enter-active,
+.dashboard-route-leave-active {
+  transition:
+    opacity var(--duration-fast) var(--ease-smooth-out),
+    transform var(--duration-fast) var(--ease-smooth-out),
+    filter var(--duration-fast) var(--ease-smooth-out);
+}
+.dashboard-route-enter-from {
+  opacity: 0;
+  transform: translateY(var(--distance-base));
+  filter: blur(var(--blur-small));
+}
+.dashboard-route-leave-to {
+  opacity: 0;
+  transform: translateY(calc(var(--distance-base) * -1));
+  filter: blur(var(--blur-small));
+}
+
+// Sliding route indicator, based on transitions.dev tabs-sliding.
+.t-tabs {
+  position: relative;
+}
+.t-tab {
+  position: relative;
+  z-index: 1;
+  transition: color var(--tabs-dur) var(--tabs-ease);
+}
+.t-tabs-pill {
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  left: 0;
+  width: 0;
+  opacity: 0;
+  border-radius: var(--radius-pill);
+  background: var(--color-nav-active-bg);
+  pointer-events: none;
+  transform: translate3d(0, 0, 0);
+  transition:
+    transform var(--tabs-dur) var(--tabs-ease),
+    width var(--tabs-dur) var(--tabs-ease),
+    height var(--tabs-dur) var(--tabs-ease),
+    opacity var(--duration-quick) var(--ease-smooth-out),
+    background-color var(--duration-card) var(--ease-smooth-out);
+  will-change: transform, width;
+}
+
+// First-load rhythm. Home applies these hooks only once per browser session.
+@keyframes dashboard-enter {
+  from {
+    opacity: 0;
+    transform: translateY(var(--distance-medium));
+  }
+}
+@keyframes dashboard-progress-grow {
+  from {
+    transform: scaleX(0);
+  }
+}
+@keyframes dashboard-chart-grow {
+  from {
+    transform: scaleY(0);
+  }
+}
+@keyframes dashboard-today-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.82);
+  }
+  70% {
+    transform: scale(1.06);
+  }
+}
+
+.dashboard-header {
+  animation: dashboard-enter var(--duration-fast) var(--ease-smooth-out) both;
+}
+.motion-enter-overview .welcome-overview__intro {
+  animation: dashboard-enter var(--duration-fast) var(--ease-smooth-out) 60ms both;
+}
+.motion-enter-overview .overview-stat {
+  animation: dashboard-enter var(--duration-fast) var(--ease-smooth-out) both;
+}
+.motion-enter-overview .overview-stat:nth-child(1) {
+  animation-delay: 100ms;
+}
+.motion-enter-overview .overview-stat:nth-child(2) {
+  animation-delay: 140ms;
+}
+.motion-enter-overview .overview-stat:nth-child(3) {
+  animation-delay: 180ms;
+}
+.motion-enter-cards > .dashboard-card {
+  animation: dashboard-enter var(--duration-fast) var(--ease-smooth-out) both;
+}
+@for $index from 1 through 8 {
+  .motion-enter-cards > .dashboard-card:nth-child(#{$index}) {
+    animation-delay: #{160ms + ($index * 40ms)};
+  }
+}
+
+.motion-enter-cards .current-focus-card__track span,
+.app-progress__fill {
+  transform-origin: left;
+  animation: dashboard-progress-grow var(--duration-slow) var(--ease-smooth-out) both;
+}
+.motion-enter-cards .weekly-chart__bar {
+  transform-origin: bottom;
+  animation: dashboard-chart-grow var(--duration-slow) var(--ease-smooth-out) both;
+}
+.month-day--today > span {
+  animation: dashboard-today-pop var(--duration-fast) var(--ease-smooth-out) both;
+}
+
+.task-row {
+  transition:
+    opacity var(--duration-card) var(--ease-smooth-out),
+    transform var(--duration-card) var(--ease-smooth-out),
+    background-color var(--duration-card) var(--ease-smooth-out);
+}
+.task-row--completed {
+  opacity: 0.72;
+  transform: translateX(var(--distance-micro));
+}
+.task-row__content > span {
+  transition:
+    color var(--duration-card) var(--ease-smooth-out),
+    opacity var(--duration-card) var(--ease-smooth-out);
+}
+
+// Accordion expand — transitions.dev grid-row pattern, no measured heights.
+.t-acc-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--acc-collapse) var(--acc-ease);
+}
+.t-acc[data-open='true'] .t-acc-panel {
+  grid-template-rows: 1fr;
+  transition: grid-template-rows var(--acc-expand) var(--acc-ease);
+}
+.t-acc-panel-inner {
+  overflow: hidden;
+  opacity: 0;
+  filter: blur(var(--blur-small));
+  transition:
+    opacity var(--acc-collapse) var(--acc-ease),
+    filter var(--acc-collapse) var(--acc-ease);
+}
+.t-acc[data-open='true'] .t-acc-panel-inner {
+  opacity: 1;
+  filter: blur(0);
+  transition:
+    opacity var(--acc-expand) var(--acc-ease),
+    filter var(--acc-expand) var(--acc-ease);
+}
+.t-acc-chevron {
+  display: inline-flex;
+  transform: scaleY(1);
+  transform-origin: center;
+  transition: transform var(--acc-chevron) var(--acc-ease);
+}
+.t-acc[data-open='true'] .t-acc-chevron {
+  transform: scaleY(-1);
+}
+
+// Quasar mounts overlay surfaces; animate their entering surface, not the page.
+.q-menu {
+  transform-origin: top right;
+  animation: overlay-enter var(--duration-card) var(--ease-smooth-out) both;
+}
+.q-dialog__inner > * {
+  animation: overlay-enter var(--duration-fast) var(--ease-smooth-out) both;
+}
+@keyframes overlay-enter {
+  from {
+    opacity: 0;
+    transform: scale(var(--scale-panel));
+  }
+}
+
+.app-skeleton {
+  animation-timing-function: var(--ease-linear);
+}
+
+@media (max-width: 767px) {
+  .motion-enter-cards > .dashboard-card {
+    animation-delay: 80ms;
+  }
+  .dashboard-route-enter-active,
+  .dashboard-route-leave-active {
+    transition-duration: var(--duration-card);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .dashboard-route-enter-from,
+  .dashboard-route-leave-to,
+  .task-row--completed {
+    transform: none !important;
+    filter: none !important;
+  }
+
+  .t-tabs-pill,
+  .t-tab,
+  .t-acc-panel,
+  .t-acc-panel-inner,
+  .t-acc-chevron {
+    transition: none !important;
+  }
+}

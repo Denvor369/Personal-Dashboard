@@ -24,6 +24,7 @@
     "@quasar/extras": "^2.0.0",
     "@supabase/supabase-js": "^2.110.2",
     "@tanstack/vue-query": "^5.101.2",
+    "khmer-chhankitek-calendar": "^1.2.1",
     "pinia": "^3.0.1",
     "quasar": "^2.21.1",
     "vue": "^3.5.22",
@@ -57,5 +58,10 @@
   ],
   "engines": {
     "node": ">= 26 || ^24 || ^22.12"
+  },
+  "allowScripts": {
+    "@parcel/watcher@2.5.6": true,
+    "vue-demi@0.14.10": true,
+    "fsevents@2.3.3": true
   }
 }
