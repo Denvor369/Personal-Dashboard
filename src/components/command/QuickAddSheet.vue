@@ -93,10 +93,9 @@ function pick(option: QuickAddOption) {
 .quick-add-fab .q-icon {
   font-size: 1.6rem;
 }
-@media (max-width: 600px) {
+@media (max-width: 800px) {
   .quick-add-fab {
-    /* clear the mobile bottom nav */
-    bottom: calc(var(--nav-mobile-height) + var(--space-3));
+    display: none;
   }
 }
 

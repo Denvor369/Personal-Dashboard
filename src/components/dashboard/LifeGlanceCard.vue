@@ -16,7 +16,9 @@
         <span class="glance-row__body">
           <strong>{{ savings.name }}</strong>
           <small>{{ money(savings.saved) }} of {{ money(savings.target) }}</small>
-          <span class="glance-row__bar"><span :style="{ inlineSize: `${savings.percent}%` }" /></span>
+          <span class="glance-row__bar"
+            ><span :style="{ inlineSize: `${savings.percent}%` }"
+          /></span>
         </span>
         <span class="glance-row__value">{{ savings.percent }}%</span>
       </RouterLink>
@@ -25,7 +27,10 @@
         <span class="glance-row__icon"><q-icon name="school" /></span>
         <span class="glance-row__body">
           <strong>{{ learn.activeSkill?.name ?? 'Pick a skill' }}</strong>
-          <small>{{ formatDuration(learn.totalMinutes) }} practiced · {{ learn.skills.length }} skills</small>
+          <small
+            >{{ formatDuration(learn.totalMinutes) }} practiced ·
+            {{ learn.skills.length }} skills</small
+          >
         </span>
         <q-icon class="glance-row__go" name="arrow_forward" />
       </RouterLink>
@@ -98,7 +103,9 @@ const cleanDays = computed(() => {
   return Math.max(0, diff);
 });
 
-const noteCount = computed(() => readJson<unknown[]>('personal-dashboard-word-notes', []).length || 7);
+const noteCount = computed(
+  () => readJson<unknown[]>('personal-dashboard-word-notes', []).length || 7,
+);
 </script>
 
 <style scoped lang="scss">
@@ -106,7 +113,7 @@ const noteCount = computed(() => readJson<unknown[]>('personal-dashboard-word-no
   display: flex;
   min-height: 0;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--space-3);
   background: var(--color-surface);
 }
 .life-glance-card__header {
@@ -118,7 +125,7 @@ const noteCount = computed(() => readJson<unknown[]>('personal-dashboard-word-no
 .life-glance-card h2 {
   margin: 2px 0 0;
   font-size: clamp(1.125rem, 1.5vw, 1.375rem);
-  font-weight: 700;
+  font-weight: 650;
 }
 .life-glance-card__streak {
   display: inline-flex;
@@ -137,16 +144,15 @@ const noteCount = computed(() => readJson<unknown[]>('personal-dashboard-word-no
   flex: 1;
   min-height: 0;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: 0;
 }
 .glance-row {
   display: flex;
   align-items: center;
   gap: var(--space-2);
   flex: 1;
-  padding: var(--space-1) var(--space-2);
-  border: var(--border-thin);
-  border-radius: var(--radius-sm);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-text) 14%, transparent);
   color: var(--color-text);
   text-decoration: none;
   transition:
@@ -155,7 +161,9 @@ const noteCount = computed(() => readJson<unknown[]>('personal-dashboard-word-no
 }
 .glance-row:hover {
   background: var(--color-surface-soft);
-  transform: translateX(2px);
+}
+.glance-row:last-child {
+  border-bottom: 0;
 }
 .glance-row__icon {
   display: grid;
@@ -167,16 +175,16 @@ const noteCount = computed(() => readJson<unknown[]>('personal-dashboard-word-no
   font-size: 1.1rem;
 }
 .glance-row--money .glance-row__icon {
-  color: var(--color-on-primary);
-  background: var(--color-primary);
+  color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
 }
 .glance-row--learn .glance-row__icon {
-  color: var(--brand-deep);
-  background: var(--brand-mint);
+  color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
 }
 .glance-row--notes .glance-row__icon {
-  color: var(--color-on-secondary);
-  background: var(--color-secondary);
+  color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
 }
 .glance-row__body {
   display: flex;

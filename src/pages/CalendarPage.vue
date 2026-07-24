@@ -17,7 +17,10 @@
         <header class="calendar-toolbar">
           <div class="calendar-toolbar__month">
             <AppIconButton icon="chevron_left" label="Previous month" @click="changeMonth(-1)" />
-            <h2>{{ monthLabel }}</h2>
+            <div class="calendar-toolbar__label">
+              <h2>{{ monthLabel }}</h2>
+              <p lang="km">{{ lunarMonthsLabel }}</p>
+            </div>
             <AppIconButton icon="chevron_right" label="Next month" @click="changeMonth(1)" />
             <AppButton variant="ghost" size="small" @click="goToToday">Today</AppButton>
           </div>
@@ -56,7 +59,7 @@
             :class="{
               'month-day--muted': day.muted,
               'month-day--today': day.today,
-              'month-day--event': day.holidays.length || day.events.length,
+              'month-day--weekend': day.weekend,
               'month-day--sil': day.lunar.isSilDay,
             }"
             :aria-label="dayLabel(day)"
@@ -64,29 +67,36 @@
           >
             <span class="month-day__top">
               <strong>{{ day.date }}</strong>
-              <span v-if="day.holidays.length || day.lunar.isSilDay || day.events.length">
-                <q-icon
-                  v-if="day.holidays[0]"
-                  :name="holidayIcon(day.holidays[0])"
-                  :aria-label="day.holidays[0].nameEn"
-                />
-                <q-icon v-else-if="day.lunar.isSilDay" name="brightness_2" aria-label="Sil day" />
-                <q-icon v-else name="event" aria-label="Personal event" />
-              </span>
+              <q-icon
+                v-if="day.lunar.isSilDay && !day.muted"
+                class="month-day__moon"
+                name="brightness_2"
+                aria-label="Sil day"
+              />
             </span>
-            <small class="month-day__lunar" lang="km">
-              {{ day.lunar.moonDayKhmer }}{{ day.lunar.moonStatus }} ·
-              {{ day.lunar.khmerMonth }}
-            </small>
-            <small v-if="day.holidays[0]" class="month-day__occasion" lang="km">
-              {{ day.holidays[0].nameKm }}
-            </small>
-            <small v-else-if="day.events[0]" class="month-day__occasion">
-              {{ day.events[0].title }}
-            </small>
-            <small v-else-if="day.lunar.isSilDay" class="month-day__occasion" lang="km">
-              ថ្ងៃសីល
-            </small>
+            <template v-if="!day.muted">
+              <small class="month-day__lunar" lang="km">
+                {{ day.lunar.moonDayKhmer }}{{ day.lunar.moonStatus }}
+              </small>
+              <span class="month-day__footer">
+                <span
+                  v-if="day.holidays[0]"
+                  class="month-day__chip month-day__chip--holiday"
+                  lang="km"
+                >
+                  {{ day.holidays[0].nameKm }}
+                </span>
+                <span v-else-if="day.events[0]" class="month-day__chip month-day__chip--event">
+                  {{ day.events[0].title }}
+                </span>
+                <span v-else-if="day.lunar.isSilDay" class="month-day__chip month-day__chip--sil" lang="km">
+                  ថ្ងៃសីល
+                </span>
+                <span v-if="extraOccasions(day)" class="month-day__more"
+                  >+{{ extraOccasions(day) }}</span
+                >
+              </span>
+            </template>
           </button>
         </div>
 
@@ -131,18 +141,17 @@
             class="upcoming-event"
             @click="openDay(occasion.day)"
           >
-            <span class="occasion-icon" :class="`occasion-icon--${occasion.tone}`">
-              <q-icon :name="occasion.icon" />
-            </span>
-            <span class="upcoming-event__body"
-              ><strong :lang="occasion.isKhmer ? 'km' : undefined">{{ occasion.title }}</strong
-              ><small>{{ occasion.subtitle }}</small></span
-            >
             <span class="upcoming-event__date"
               ><strong>{{ occasion.day.date }}</strong
               ><small>{{ monthShortLabel }}</small></span
             >
-            <q-icon name="chevron_right" />
+            <span class="upcoming-event__body"
+              ><strong :lang="occasion.isKhmer ? 'km' : undefined">{{ occasion.title }}</strong
+              ><small>{{ occasion.subtitle }}</small></span
+            >
+            <span class="occasion-icon" :class="`occasion-icon--${occasion.tone}`">
+              <q-icon :name="occasion.icon" />
+            </span>
           </button>
         </div>
       </AppCard>
@@ -233,6 +242,7 @@ type CalendarDay = {
   date: number;
   muted: boolean;
   today: boolean;
+  weekend: boolean;
   lunar: KhmerLunarDate;
   holidays: KhmerHoliday[];
   events: LocalEvent[];
@@ -295,6 +305,13 @@ const monthLabel = computed(() =>
 const monthShortLabel = computed(() =>
   viewedMonth.value.toLocaleDateString('en-US', { month: 'short' }),
 );
+// Lunar month(s) spanned by the Gregorian month — shown once in the toolbar
+// instead of repeated in all 42 day cells.
+const lunarMonthsLabel = computed(() =>
+  [
+    ...new Set(monthDays.value.filter((day) => !day.muted).map((day) => day.lunar.khmerMonth)),
+  ].join(' · '),
+);
 const monthDays = computed<CalendarDay[]>(() => {
   const year = viewedMonth.value.getFullYear();
   const month = viewedMonth.value.getMonth();
@@ -311,6 +328,7 @@ const monthDays = computed<CalendarDay[]>(() => {
       date: date.getDate(),
       muted: date.getMonth() !== month,
       today: isoDate === todayIso,
+      weekend: date.getDay() === 0 || date.getDay() === 6,
       lunar,
       holidays: lunar.holidays,
       events: events.value.filter((event) => event.isoDate === isoDate),
@@ -383,6 +401,9 @@ function dayLabel(day: CalendarDay) {
   if (day.lunar.isSilDay) occasions.push('Sil day');
   occasions.push(...day.events.map((event) => event.title));
   return `${day.isoDate}, ${day.lunar.lunarDateText}${occasions.length ? `, ${occasions.join(', ')}` : ''}`;
+}
+function extraOccasions(day: CalendarDay) {
+  return Math.max(0, day.holidays.length + day.events.length - 1);
 }
 function holidayIcon(holiday: KhmerHoliday) {
   return (
@@ -465,6 +486,21 @@ function saveEvent() {
 .calendar-toolbar__month {
   gap: var(--space-1);
 }
+.calendar-toolbar__label {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  padding-inline: var(--space-1);
+}
+.calendar-toolbar__label p {
+  overflow: hidden;
+  color: var(--color-text-secondary);
+  font-family: 'Kantumruy Pro', var(--font-body);
+  font-size: 0.74rem;
+  line-height: 1.5;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .calendar-toolbar h2,
 .upcoming-panel h2 {
   font-size: 1.3rem;
@@ -484,11 +520,7 @@ function saveEvent() {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 3px 10px 3px 8px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-pill);
   color: var(--color-text-secondary);
-  background: color-mix(in srgb, var(--color-surface-raised) 60%, transparent);
 }
 .calendar-legend .q-icon {
   color: var(--color-primary);
@@ -499,16 +531,12 @@ function saveEvent() {
   flex: 1;
   min-height: 0;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  grid-template-rows: auto repeat(6, minmax(78px, 1fr));
-  gap: 1px;
-  border: 1px solid var(--color-border);
-  background: var(--color-border);
-  overflow: hidden;
+  grid-template-rows: auto repeat(6, minmax(86px, 1fr));
+  gap: 6px;
 }
 .month-grid__weekday {
-  padding: 10px 2px;
+  padding: 4px 2px 8px;
   color: var(--color-text-secondary);
-  background: var(--color-surface);
   font-family: var(--font-control);
   font-size: 0.68rem;
   font-weight: 700;
@@ -517,23 +545,25 @@ function saveEvent() {
   text-transform: uppercase;
 }
 .month-day {
-  position: relative;
+  display: flex;
   min-width: 0;
   min-height: 0;
-  padding: 8px;
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--color-surface-raised) 100%, white 4%),
-    var(--color-surface-raised)
-  );
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 9px;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-text) 5%, transparent);
   text-align: left;
   overflow: hidden;
   transition:
     background-color 150ms ease,
     box-shadow 150ms ease;
 }
+.month-day--weekend {
+  background: color-mix(in srgb, var(--color-text) 2.5%, transparent);
+}
 .month-day:hover {
-  z-index: 1;
   background: var(--color-surface-soft);
   box-shadow: inset 0 0 0 1px var(--color-primary);
 }
@@ -546,8 +576,8 @@ function saveEvent() {
 }
 .month-day__top > strong {
   display: grid;
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   place-items: center;
   border-radius: 50%;
   color: var(--color-text);
@@ -556,38 +586,60 @@ function saveEvent() {
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
-.month-day__top > span {
-  display: inline-flex;
-  width: 26px;
-  height: 26px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
+.month-day__moon {
   color: var(--color-primary);
-  background: color-mix(in srgb, var(--brand-mint) 32%, transparent);
-  font-size: 1rem;
+  font-size: 0.95rem;
 }
-.month-day small {
-  display: block;
-  margin-top: 4px;
+.month-day__lunar {
   overflow: hidden;
-  color: var(--color-text-secondary);
-  font-size: 0.74rem;
-  line-height: 1.35;
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+  font-weight: 500;
+  line-height: 1.4;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.month-day__lunar {
-  color: var(--color-text-secondary);
-  font-size: 0.76rem;
-  font-weight: 600;
+.month-day__footer {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  align-items: center;
+  gap: 4px;
+  margin-top: auto;
 }
-.month-day__occasion {
-  color: var(--color-primary) !important;
+.month-day__chip {
+  display: block;
+  min-width: 0;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  font-size: 0.7rem;
   font-weight: 600;
+  line-height: 1.5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.month-day__chip--holiday {
+  color: var(--color-on-secondary);
+  background: var(--color-secondary);
+}
+.month-day__chip--event {
+  color: var(--brand-deep);
+  background: var(--brand-mint);
+}
+.month-day__chip--sil {
+  color: var(--color-primary);
+  background: color-mix(in srgb, var(--brand-mint) 18%, transparent);
+}
+.month-day__more {
+  flex: 0 0 auto;
+  color: var(--color-text-muted);
+  font-family: var(--font-control);
+  font-size: 0.66rem;
+  font-weight: 700;
 }
 .month-day--today {
-  z-index: 1;
+  background: color-mix(in srgb, var(--brand-mint) 14%, transparent);
   box-shadow: inset 0 0 0 2px var(--color-primary);
 }
 .month-day--today .month-day__top > strong {
@@ -595,21 +647,11 @@ function saveEvent() {
   background: var(--color-primary);
 }
 .month-day--muted {
-  opacity: 0.42;
+  background: transparent;
+  opacity: 0.4;
 }
-.month-day--event {
-  z-index: 1;
-  box-shadow: inset 0 0 0 1px var(--color-primary);
-  background:
-    linear-gradient(90deg, var(--color-primary) 3px, transparent 3px),
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--color-surface-raised) 100%, white 4%),
-      var(--color-surface-raised)
-    );
-}
-.month-day--sil:not(.month-day--event) {
-  background: color-mix(in srgb, var(--brand-mint) 22%, var(--color-surface-raised));
+.month-day--sil:not(.month-day--today) {
+  background: color-mix(in srgb, var(--brand-mint) 8%, transparent);
 }
 .upcoming-panel__header {
   display: flex;
@@ -660,14 +702,13 @@ function saveEvent() {
 }
 .upcoming-event {
   display: grid;
-  grid-template-columns: 40px minmax(0, 1fr) auto 18px;
+  grid-template-columns: 44px minmax(0, 1fr) 30px;
   align-items: center;
   gap: var(--space-2);
-  min-height: 74px;
-  padding: var(--space-2);
-  border: 1px solid var(--color-border);
+  padding: 10px var(--space-2);
+  border: 1px solid transparent;
   border-radius: var(--radius-md);
-  background: color-mix(in srgb, var(--color-surface-raised) 55%, transparent);
+  background: color-mix(in srgb, var(--color-text) 4%, transparent);
   text-align: left;
   transition:
     border-color 150ms ease,
@@ -679,13 +720,11 @@ function saveEvent() {
   background: var(--color-surface-soft);
   transform: translateX(2px);
 }
-.upcoming-event > .q-icon {
-  color: var(--color-text-muted);
-  transition: transform 150ms ease;
-}
-.upcoming-event:hover > .q-icon {
-  color: var(--color-primary);
-  transform: translateX(2px);
+.upcoming-event .occasion-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  font-size: 1rem;
 }
 .upcoming-event__body {
   display: flex;
@@ -706,8 +745,8 @@ function saveEvent() {
   flex-direction: column;
   justify-content: center;
   gap: 1px;
-  width: 42px;
-  padding: 5px 0;
+  width: 44px;
+  padding: 6px 0;
   border-radius: var(--radius-sm);
   color: var(--color-primary);
   background: color-mix(in srgb, var(--brand-mint) 16%, transparent);
@@ -775,13 +814,11 @@ function saveEvent() {
 }
 @media (prefers-reduced-motion: reduce) {
   .month-day,
-  .upcoming-event,
-  .upcoming-event > .q-icon {
+  .upcoming-event {
     transition: none;
   }
   .month-day:hover,
-  .upcoming-event:hover,
-  .upcoming-event:hover > .q-icon {
+  .upcoming-event:hover {
     transform: none;
   }
 }
@@ -810,8 +847,8 @@ function saveEvent() {
   }
   .month-grid {
     width: 100%;
-    grid-template-rows: auto repeat(6, 74px);
-    gap: 1px;
+    grid-template-rows: auto repeat(6, 72px);
+    gap: 3px;
   }
   .calendar-toolbar {
     align-items: stretch;
@@ -827,6 +864,9 @@ function saveEvent() {
     text-align: center;
     text-overflow: ellipsis;
   }
+  .calendar-toolbar__label {
+    text-align: center;
+  }
   .calendar-toolbar__month :deep(.app-btn) {
     width: 100%;
     grid-column: 1 / -1;
@@ -839,7 +879,8 @@ function saveEvent() {
     flex: 1 1 0;
     padding-inline: var(--space-2);
   }
-  .month-day__occasion {
+  .month-day__chip,
+  .month-day__more {
     display: none;
   }
   .calendar-legend {
@@ -858,9 +899,7 @@ function saveEvent() {
     height: 24px;
     font-size: 0.8rem;
   }
-  .month-day__top > span {
-    width: 21px;
-    height: 21px;
+  .month-day__moon {
     font-size: 0.8rem;
   }
   .month-day__lunar {

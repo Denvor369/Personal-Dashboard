@@ -14,7 +14,7 @@
     </span>
 
     <footer class="integration-card__footer">
-      <span class="integration-card__status" :data-status="service.status">
+      <span class="integration-card__status" :data-status="statusLabel">
         <span class="integration-card__dot" aria-hidden="true" />{{ statusLabel }}
       </span>
       <span :title="action.hint">
@@ -43,14 +43,14 @@ const emit = defineEmits<{
   details: [service: Integration];
 }>();
 
-const statusLabel = computed(() =>
-  props.service.status === 'Not connected' && props.service.connectEnabled
-    ? 'Ready to connect'
-    : props.service.status,
-);
+const statusLabel = computed(() => {
+  if (props.service.status === 'Coming soon') return 'Ready to connect';
+  if (props.service.status === 'Not connected' && props.service.connectEnabled)
+    return 'Ready to connect';
+  return props.service.status;
+});
 
-// One action per card. The only primary (filled) button on the page is a real,
-// working Connect — everything else stays quiet so it can't compete with it.
+// Every available service gets one enabled connection entry point.
 const action = computed<{
   label: string;
   event: 'connect' | 'details';
@@ -60,19 +60,61 @@ const action = computed<{
 }>(() => {
   switch (props.service.status) {
     case 'Connected':
-      return { label: 'Manage', event: 'connect', primary: false, disabled: false, hint: 'Open connection settings' };
+      return {
+        label: 'Manage',
+        event: 'connect',
+        primary: false,
+        disabled: false,
+        hint: 'Open connection settings',
+      };
     case 'Needs attention':
-      return { label: 'Reconnect', event: 'connect', primary: true, disabled: false, hint: 'Re-authorize this connection' };
+      return {
+        label: 'Reconnect',
+        event: 'connect',
+        primary: true,
+        disabled: false,
+        hint: 'Re-authorize this connection',
+      };
     case 'Error':
-      return { label: 'Review issue', event: 'details', primary: false, disabled: false, hint: 'See what went wrong' };
+      return {
+        label: 'Review issue',
+        event: 'details',
+        primary: false,
+        disabled: false,
+        hint: 'See what went wrong',
+      };
     case 'Syncing':
-      return { label: 'Syncing…', event: 'details', primary: false, disabled: true, hint: 'A sync is already in progress' };
+      return {
+        label: 'Syncing…',
+        event: 'details',
+        primary: false,
+        disabled: true,
+        hint: 'A sync is already in progress',
+      };
     case 'Coming soon':
-      return { label: 'Details', event: 'details', primary: false, disabled: false, hint: 'What this will bring to the dashboard' };
+      return {
+        label: 'Connect',
+        event: 'connect',
+        primary: true,
+        disabled: false,
+        hint: 'Open connection setup',
+      };
     default:
       return props.service.connectEnabled
-        ? { label: 'Connect', event: 'connect', primary: true, disabled: false, hint: 'Link your account' }
-        : { label: 'Details', event: 'details', primary: false, disabled: false, hint: 'Planned — not yet available' };
+        ? {
+            label: 'Connect',
+            event: 'connect',
+            primary: true,
+            disabled: false,
+            hint: 'Link your account',
+          }
+        : {
+            label: 'Connect',
+            event: 'connect',
+            primary: true,
+            disabled: false,
+            hint: 'Open connection setup',
+          };
   }
 });
 
@@ -174,6 +216,12 @@ function runAction() {
   background: var(--brand-mint);
 }
 .integration-card__status[data-status='Not connected'] .integration-card__dot {
+  background: var(--brand-teal);
+}
+.integration-card__status[data-status='Ready to connect'] {
+  color: var(--color-text-secondary);
+}
+.integration-card__status[data-status='Ready to connect'] .integration-card__dot {
   background: var(--brand-teal);
 }
 .integration-card__status[data-status='Syncing'] .integration-card__dot {

@@ -158,8 +158,8 @@ onBeforeUnmount(stopTimer);
   min-height: 0;
   flex-direction: column;
   align-items: center;
-  color: var(--color-on-strong-surface);
-  background: var(--color-strong-surface);
+  color: var(--color-text);
+  background: var(--color-surface);
 }
 
 .focus-timer-card .dashboard-card__header {
@@ -169,7 +169,7 @@ onBeforeUnmount(stopTimer);
 .focus-timer-card h2 {
   margin: 0;
   font-size: clamp(1.125rem, 1.5vw, 1.375rem);
-  font-weight: 700;
+  font-weight: 650;
   line-height: 1.1;
 }
 
@@ -186,13 +186,12 @@ onBeforeUnmount(stopTimer);
   font-family: var(--font-control);
   font-size: 0.68rem;
   line-height: 1.2;
-  text-transform: uppercase;
 }
 
 .focus-timer {
   position: relative;
   display: grid;
-  width: clamp(76px, 6vw, 100px);
+  width: clamp(84px, 7vw, 108px);
   aspect-ratio: 1;
   place-content: center;
   margin: var(--space-1) auto 0;
@@ -243,8 +242,8 @@ onBeforeUnmount(stopTimer);
   gap: 2px;
   width: 100%;
   padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-sm);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--color-text) 5%, transparent);
   text-align: center;
 }
 
@@ -258,7 +257,6 @@ onBeforeUnmount(stopTimer);
 .focus-timer-card__task strong {
   font-family: var(--font-body);
   font-size: 0.8rem;
-  font-style: italic;
   font-weight: 400;
 }
 

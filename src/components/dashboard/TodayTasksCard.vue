@@ -5,7 +5,7 @@
         <p class="dashboard-eyebrow">Today</p>
         <h2>Today’s tasks</h2>
       </div>
-      <span class="today-tasks-card__count">{{ completedCount }}/{{ todayList.length }}</span>
+      <span class="today-tasks-card__count">{{ completedCount }} of {{ todayList.length }}</span>
     </header>
 
     <div v-if="loading && !initialized" class="today-tasks-card__list" aria-busy="true">
@@ -84,27 +84,30 @@ const visibleTasks = computed(() => todayList.value.slice(0, 4));
 
 <style scoped lang="scss">
 .today-tasks-card {
-  gap: var(--space-2);
-  padding: var(--space-3);
+  gap: var(--space-3);
   background: var(--color-surface);
 }
 
 .today-tasks-card h2 {
   margin: 2px 0 0;
   font-size: clamp(1.125rem, 1.5vw, 1.375rem);
-  font-weight: 700;
+  font-weight: 650;
 }
 
 .today-tasks-card__count {
-  font-family: var(--font-heading);
-  font-size: clamp(1.5rem, 2vw, 1.9rem);
-  font-weight: 700;
+  padding: 0.3rem 0.6rem;
+  border-radius: var(--radius-pill);
+  color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+  font-family: var(--font-control);
+  font-size: 0.68rem;
+  font-weight: 600;
 }
 
 .today-tasks-card__list {
   display: grid;
   align-content: start;
-  gap: var(--space-1);
+  gap: 0;
   flex: 1;
   min-height: 0;
   overflow-x: hidden;
@@ -134,12 +137,14 @@ const visibleTasks = computed(() => todayList.value.slice(0, 4));
   align-items: center;
   gap: var(--space-2);
   min-height: 44px;
-  padding: 4px var(--space-2);
-  border: var(--border-thin);
-  border-radius: var(--radius-sm);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-text) 14%, transparent);
   color: var(--color-text);
-  background: var(--color-surface-raised);
   cursor: pointer;
+}
+
+.task-row:last-child {
+  border-bottom: 0;
 }
 
 .task-row__content {
@@ -174,6 +179,8 @@ const visibleTasks = computed(() => todayList.value.slice(0, 4));
   align-items: center;
   justify-content: space-between;
   gap: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: 1px solid color-mix(in srgb, var(--color-text) 14%, transparent);
   color: var(--color-text-muted);
   font-family: var(--font-control);
   font-size: 0.7rem;

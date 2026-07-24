@@ -71,6 +71,66 @@ export async function disconnectProvider(provider: string): Promise<void> {
   if (error && error.code !== '42P01') throw error;
 }
 
+export interface GitHubRepo {
+  fullName: string;
+  url: string;
+  private: boolean;
+  language: string | null;
+  stars: number;
+  openIssues: number;
+  pushedAt: string;
+}
+
+export interface GitHubOverview {
+  login: string;
+  publicRepos: number;
+  privateRepos: number;
+  followers: number;
+  repos: GitHubRepo[];
+}
+
+export async function fetchGitHubOverview(): Promise<GitHubOverview> {
+  const token = await getProviderToken('github');
+  if (!token) throw new Error('GitHub is not connected.');
+  const headers = { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json' };
+  const [userRes, reposRes] = await Promise.all([
+    fetch('https://api.github.com/user', { headers }),
+    fetch('https://api.github.com/user/repos?sort=pushed&per_page=10', { headers }),
+  ]);
+  if (!userRes.ok || !reposRes.ok)
+    throw new Error(`GitHub error (${!userRes.ok ? userRes.status : reposRes.status}). Try reconnecting.`);
+  const user = (await userRes.json()) as {
+    login: string;
+    public_repos?: number;
+    total_private_repos?: number;
+    followers?: number;
+  };
+  const repos = (await reposRes.json()) as Array<{
+    full_name: string;
+    html_url: string;
+    private: boolean;
+    language: string | null;
+    stargazers_count: number;
+    open_issues_count: number;
+    pushed_at: string;
+  }>;
+  return {
+    login: user.login,
+    publicRepos: user.public_repos ?? 0,
+    privateRepos: user.total_private_repos ?? 0,
+    followers: user.followers ?? 0,
+    repos: repos.map((repo) => ({
+      fullName: repo.full_name,
+      url: repo.html_url,
+      private: repo.private,
+      language: repo.language,
+      stars: repo.stargazers_count,
+      openIssues: repo.open_issues_count,
+      pushedAt: repo.pushed_at,
+    })),
+  };
+}
+
 export async function getProviderToken(provider: string): Promise<string | null> {
   const { data, error } = await supabase
     .from('connected_accounts')

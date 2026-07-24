@@ -97,7 +97,17 @@ export const useTasksStore = defineStore('tasks', () => {
         (payload) => {
           if (payload.eventType === 'DELETE') removeLocal((payload.old as { id: string }).id);
           else upsertLocal(fromRow(payload.new as Parameters<typeof fromRow>[0]));
-          void currentUserId().then((id) => id && writeCache(id));
+          writeCache(userId);
+        },
+      )
+      .on(
+        // Unfiltered: DELETE payloads only carry the primary key, so the user_id
+        // filter above silently drops them. Removing a foreign id is a no-op.
+        'postgres_changes',
+        { event: 'DELETE', schema: 'public', table: 'tasks' },
+        (payload) => {
+          removeLocal((payload.old as { id: string }).id);
+          writeCache(userId);
         },
       )
       .subscribe();

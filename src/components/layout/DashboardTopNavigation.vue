@@ -65,12 +65,7 @@
           <div class="notif" aria-label="Recent notifications">
             <header class="notif__head">
               <strong>Notifications</strong>
-              <button
-                v-if="unreadCount"
-                type="button"
-                class="notif__markall"
-                @click="markAllRead"
-              >
+              <button v-if="unreadCount" type="button" class="notif__markall" @click="markAllRead">
                 Mark all read
               </button>
             </header>
@@ -96,9 +91,6 @@
             </p>
           </div>
         </q-menu>
-      </q-btn>
-      <q-btn flat round dense icon="settings" to="/settings" aria-label="Settings">
-        <q-tooltip>Settings</q-tooltip>
       </q-btn>
       <q-btn
         flat
@@ -192,8 +184,20 @@ const moreItems = [
 ];
 const moreActive = computed(() => moreItems.some((item) => item.path === route.path));
 const notifications = ref([
-  { title: 'Weekly review at 16:00', detail: 'Today · Planning', icon: 'event', tone: 'mint', read: false },
-  { title: 'Dashboard milestone due soon', detail: 'Friday · Projects', icon: 'flag', tone: 'teal', read: false },
+  {
+    title: 'Weekly review at 16:00',
+    detail: 'Today · Planning',
+    icon: 'event',
+    tone: 'mint',
+    read: false,
+  },
+  {
+    title: 'Dashboard milestone due soon',
+    detail: 'Friday · Projects',
+    icon: 'flag',
+    tone: 'teal',
+    read: false,
+  },
 ]);
 const unreadCount = computed(() => notifications.value.filter((n) => !n.read).length);
 function markAllRead() {
@@ -222,13 +226,12 @@ const initials = computed(() =>
   grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: var(--space-4);
-  min-height: 58px;
+  min-height: 56px;
   padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-pill);
-  background: color-mix(in srgb, var(--color-nav-bg) 92%, transparent);
-  box-shadow: 0 10px 30px color-mix(in srgb, var(--color-text) 9%, transparent);
-  backdrop-filter: blur(16px);
+  border: 1px solid color-mix(in srgb, var(--color-text) 18%, transparent);
+  border-radius: 18px;
+  background: var(--color-nav-bg);
+  box-shadow: var(--shadow-sm);
 }
 
 .dashboard-header__brand,
@@ -264,15 +267,16 @@ const initials = computed(() =>
 }
 
 .dashboard-header__brand-mark {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   object-fit: cover;
 }
 
 .dashboard-header__brand-text {
   font-family: var(--font-heading);
-  font-size: 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
 }
 
 .dashboard-header__nav {
@@ -281,11 +285,12 @@ const initials = computed(() =>
 }
 
 .dashboard-header__nav-link {
-  min-height: 40px;
-  padding: 0.5rem 0.85rem;
+  min-height: 36px;
+  padding: 0.45rem 0.8rem;
   border-radius: var(--radius-pill);
   color: var(--color-text-secondary);
-  font-size: 0.9rem;
+  font-size: 0.84rem;
+  font-weight: 500;
   text-decoration: none;
   transition:
     color var(--duration-fast) var(--ease-smooth-out),
@@ -324,9 +329,9 @@ const initials = computed(() =>
 }
 
 .dashboard-header__actions :deep(.q-btn) {
-  width: 40px;
-  height: 40px;
-  min-width: 40px;
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
 }
 
 .dashboard-header__actions .q-btn:hover {
@@ -484,8 +489,7 @@ const initials = computed(() =>
 
   .dashboard-header__nav,
   .dashboard-header__actions > :nth-child(2),
-  .dashboard-header__actions > :nth-child(3),
-  .dashboard-header__actions > :nth-child(5) {
+  .dashboard-header__actions > :nth-child(4) {
     display: none;
   }
 

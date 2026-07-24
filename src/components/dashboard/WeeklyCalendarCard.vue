@@ -51,14 +51,14 @@ import { calendarDays } from '@/data/dashboard.mock';
 
 <style scoped lang="scss">
 .weekly-calendar-card {
-  gap: var(--space-2);
+  gap: var(--space-3);
   background: var(--color-surface);
 }
 
 .weekly-calendar-card h2 {
   margin: 2px 0 0;
   font-size: clamp(1.125rem, 1.5vw, 1.375rem);
-  font-weight: 700;
+  font-weight: 650;
 }
 
 .weekly-calendar-card > header .q-btn {
@@ -71,7 +71,9 @@ import { calendarDays } from '@/data/dashboard.mock';
   flex: 1;
   min-height: 0;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: var(--space-1);
+  gap: 0;
+  overflow: hidden;
+  border-top: 1px solid color-mix(in srgb, var(--color-text) 16%, transparent);
 }
 
 .calendar-day {
@@ -79,16 +81,18 @@ import { calendarDays } from '@/data/dashboard.mock';
   min-height: 0;
   flex-direction: column;
   overflow: hidden;
-  border: var(--border-thin);
-  border-radius: var(--radius-sm);
-  background: var(--color-surface-raised);
+  border-right: 1px solid color-mix(in srgb, var(--color-text) 14%, transparent);
+}
+
+.calendar-day:last-child {
+  border-right: 0;
 }
 
 .calendar-day > header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 4px var(--space-2);
+  padding: var(--space-2);
   font-family: var(--font-control);
   font-size: 0.72rem;
 }
@@ -110,8 +114,7 @@ import { calendarDays } from '@/data/dashboard.mock';
 }
 
 .calendar-day--current {
-  border-color: var(--color-primary);
-  background: color-mix(in srgb, var(--color-surface) 72%, var(--brand-mint));
+  background: color-mix(in srgb, var(--color-primary) 7%, transparent);
 }
 
 .calendar-day__events {
@@ -120,7 +123,7 @@ import { calendarDays } from '@/data/dashboard.mock';
   min-height: 0;
   flex-direction: column;
   gap: var(--space-1);
-  padding: 0 4px 4px;
+  padding: 0 var(--space-1) var(--space-2);
   overflow: hidden;
 }
 
@@ -128,8 +131,9 @@ import { calendarDays } from '@/data/dashboard.mock';
   display: flex;
   flex-direction: column;
   gap: 1px;
-  padding: 4px var(--space-1);
-  border-radius: var(--radius-sm);
+  padding: var(--space-2);
+  border-left: 2px solid currentColor;
+  border-radius: 8px;
   text-decoration: none;
 }
 
@@ -152,18 +156,18 @@ import { calendarDays } from '@/data/dashboard.mock';
 }
 
 .calendar-event--deep {
-  color: var(--color-on-strong-surface);
-  background: var(--color-strong-surface);
+  color: var(--color-text-secondary);
+  background: color-mix(in srgb, var(--color-text) 7%, transparent);
 }
 
 .calendar-event--teal {
-  color: var(--color-on-secondary);
-  background: var(--color-secondary);
+  color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 10%, transparent);
 }
 
 .calendar-event--mint {
-  color: var(--color-on-primary);
-  background: var(--color-primary);
+  color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 16%, transparent);
 }
 
 .calendar-day__empty {

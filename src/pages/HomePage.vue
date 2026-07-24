@@ -35,10 +35,10 @@ if (shouldAnimate) sessionStorage.setItem(motionKey, 'true');
 .home-dashboard {
   display: flex;
   flex-direction: column;
-  gap: clamp(10px, 1vw, 16px);
+  gap: clamp(18px, 1.5vw, 24px);
   height: 100%;
   min-height: 0;
-  padding: clamp(4px, 0.6vw, 10px) clamp(4px, 0.8vw, 12px);
+  padding: clamp(10px, 1vw, 16px) clamp(2px, 0.5vw, 8px) clamp(20px, 2vw, 32px);
 }
 
 .dashboard-grid {
@@ -46,11 +46,32 @@ if (shouldAnimate) sessionStorage.setItem(motionKey, 'true');
   flex: 1;
   min-height: 0;
   grid-template-columns: repeat(12, minmax(0, 1fr));
-  grid-template-rows: minmax(200px, 1fr) minmax(212px, 0.82fr);
+  grid-template-rows: minmax(280px, 1fr) minmax(260px, 0.9fr);
   grid-template-areas:
-    'focus focus focus focus progress progress progress progress tasks tasks tasks tasks'
+    'focus focus focus focus focus progress progress progress progress tasks tasks tasks'
     'calendar calendar calendar calendar calendar calendar timer timer timer quick quick quick';
-  gap: clamp(10px, 0.9vw, 14px);
+  gap: clamp(14px, 1.2vw, 20px);
+}
+
+.home-dashboard :deep(.dashboard-card) {
+  padding: clamp(16px, 1.5vw, 24px);
+  border-color: color-mix(in srgb, var(--color-text) 18%, transparent);
+  border-radius: 18px;
+  box-shadow: none;
+}
+
+.home-dashboard :deep(.dashboard-card:hover) {
+  border-color: color-mix(in srgb, var(--color-text) 28%, transparent);
+  box-shadow: none;
+  transform: none;
+}
+
+.home-dashboard :deep(.dashboard-eyebrow) {
+  color: var(--color-text-muted);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: none;
 }
 
 .dashboard-grid__focus {
@@ -91,6 +112,11 @@ if (shouldAnimate) sessionStorage.setItem(motionKey, 'true');
 
 // Mobile: single column, prioritise focus, tasks, schedule.
 @media (max-width: 767px) {
+  .home-dashboard {
+    gap: var(--space-4);
+    padding-inline: 0;
+  }
+
   .dashboard-grid {
     grid-template-columns: 1fr;
     grid-template-areas:

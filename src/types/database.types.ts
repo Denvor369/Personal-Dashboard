@@ -317,6 +317,42 @@ export interface Database {
         };
         Relationships: Relationship[];
       };
+      skills: {
+        Row: {
+          category: 'Music' | 'DevOps' | 'Programming' | 'Language' | 'Fitness' | 'Design' | 'Other';
+          created_at: string;
+          goal: string;
+          id: string;
+          name: string;
+          practice_minutes: number;
+          progress: number;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          category?: 'Music' | 'DevOps' | 'Programming' | 'Language' | 'Fitness' | 'Design' | 'Other';
+          created_at?: string;
+          goal?: string;
+          id?: string;
+          name: string;
+          practice_minutes?: number;
+          progress?: number;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          category?: 'Music' | 'DevOps' | 'Programming' | 'Language' | 'Fitness' | 'Design' | 'Other';
+          created_at?: string;
+          goal?: string;
+          id?: string;
+          name?: string;
+          practice_minutes?: number;
+          progress?: number;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: Relationship[];
+      };
       tasks: {
         Row: {
           completed_at: string | null;

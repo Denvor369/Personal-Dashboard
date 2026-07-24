@@ -11,19 +11,29 @@
 import { watch } from 'vue';
 import { useAuthStore } from '@/stores/auth.store';
 import { useTasksStore } from '@/modules/tasks/stores/tasks.store';
+import { useLearnStore } from '@/stores/learn.store';
+import { useNotesStore } from '@/stores/notes.store';
 
 const auth = useAuthStore();
 const tasks = useTasksStore();
+const learn = useLearnStore();
+const notes = useNotesStore();
 void auth.initializeAuth();
 
-// Bind user-scoped data to the session: clear first so one user's tasks never
-// linger when another signs in, then load the signed-in user's tasks.
+// Bind user-scoped data to the session: clear first so one user's data never
+// lingers when another signs in, then load the signed-in user's data.
+// Notes load per-page with filters, so they only need the clear side.
 watch(
   () => auth.user?.id,
   (id, previous) => {
     if (id === previous) return;
     tasks.clear();
-    if (id) void tasks.initialize();
+    learn.clear();
+    notes.clear();
+    if (id) {
+      void tasks.initialize();
+      void learn.initialize();
+    }
   },
   { immediate: true },
 );

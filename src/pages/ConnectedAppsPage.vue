@@ -127,6 +127,39 @@
           <dd>{{ selected.syncFrequency }}</dd>
         </div>
       </dl>
+      <template v-if="selected?.id === 'github' && selected.status === 'Connected'">
+        <h3 class="integration-detail__heading">Your GitHub</h3>
+        <div v-if="githubOverviewLoading" aria-busy="true">
+          <AppSkeleton v-for="n in 4" :key="n" variant="text" />
+        </div>
+        <p v-else-if="githubOverviewError" class="integration-privacy">
+          <q-icon name="error_outline" aria-hidden="true" /> {{ githubOverviewError }}
+        </p>
+        <template v-else-if="githubOverview">
+          <dl class="workspace-detail-stack">
+            <div class="workspace-detail-row">
+              <dt>Repositories</dt>
+              <dd>{{ githubOverview.publicRepos }} public · {{ githubOverview.privateRepos }} private</dd>
+            </div>
+            <div class="workspace-detail-row">
+              <dt>Followers</dt>
+              <dd>{{ githubOverview.followers }}</dd>
+            </div>
+          </dl>
+          <ul class="github-repo-list">
+            <li v-for="repo in githubOverview.repos" :key="repo.fullName">
+              <a :href="repo.url" target="_blank" rel="noopener noreferrer">{{ repo.fullName }}</a>
+              <span class="github-repo-list__meta">
+                <q-icon v-if="repo.private" name="lock" aria-label="Private" />
+                <span v-if="repo.language">{{ repo.language }}</span>
+                <span v-if="repo.stars">★ {{ repo.stars }}</span>
+                <span v-if="repo.openIssues">{{ repo.openIssues }} issues</span>
+                <span>pushed {{ pushedLabel(repo.pushedAt) }}</span>
+              </span>
+            </li>
+          </ul>
+        </template>
+      </template>
       <template v-if="selected">
         <h3 class="integration-detail__heading">Dashboard data</h3>
         <ul class="integration-capabilities">
@@ -153,13 +186,13 @@
           @click="disconnect"
           >Disconnect</AppButton
         >
-        <span :title="selected?.connectEnabled ? 'Link your account' : 'Provider backend required'">
+        <span :title="selected?.connectEnabled ? 'Link your account' : 'Open setup requirements'">
           <AppButton
             icon-left="bolt"
-            :disabled="!selected?.connectEnabled || selected?.status === 'Connected'"
+            :disabled="selected?.status === 'Connected'"
             @click="connect(selected)"
           >
-            {{ selected?.connectEnabled ? 'Connect' : 'Setup required' }}
+            {{ selected?.connectEnabled ? 'Connect' : 'View setup' }}
           </AppButton>
         </span>
       </template>
@@ -245,8 +278,10 @@ import type { Integration, IntegrationCategory } from '@/data/integrations.mock'
 import {
   connectGitHub,
   disconnectProvider,
+  fetchGitHubOverview,
   getConnectedAccounts,
 } from '@/services/supabase/integrations.service';
+import type { GitHubOverview } from '@/services/supabase/integrations.service';
 
 type CategoryTab = 'All' | IntegrationCategory;
 
@@ -316,9 +351,36 @@ const stats = computed(() => [
   },
 ]);
 
+const githubOverview = ref<GitHubOverview | null>(null);
+const githubOverviewLoading = ref(false);
+const githubOverviewError = ref('');
+
 function openService(service: Integration) {
   selected.value = service;
   detailOpen.value = true;
+  if (service.id === 'github' && service.status === 'Connected' && !githubOverview.value)
+    void loadGitHubOverview();
+}
+
+async function loadGitHubOverview() {
+  githubOverviewLoading.value = true;
+  githubOverviewError.value = '';
+  try {
+    githubOverview.value = await fetchGitHubOverview();
+  } catch (error) {
+    githubOverviewError.value =
+      error instanceof Error ? error.message : 'Could not load GitHub data.';
+  } finally {
+    githubOverviewLoading.value = false;
+  }
+}
+
+function pushedLabel(pushedAt: string) {
+  const days = Math.floor((Date.now() - new Date(pushedAt).getTime()) / 86_400_000);
+  if (days <= 0) return 'today';
+  if (days === 1) return 'yesterday';
+  if (days < 30) return `${days}d ago`;
+  return new Date(pushedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 function connectionRequirement(service: Integration) {
   if (service.id === 'pagespeed-insights')
@@ -334,13 +396,15 @@ function connect(service: Integration | null) {
     return;
   }
   if (service.id === 'github') {
+    detailOpen.value = false; // ponytail: stacked q-dialogs fight over focus — token input becomes untypeable
     githubToken.value = '';
     githubDialogOpen.value = true;
     return;
   }
+  openService(service);
   $q.notify({
-    message: `${service.name} is coming soon`,
-    caption: 'Prepared in the interface — no credentials are requested or stored yet.',
+    message: `Set up ${service.name}`,
+    caption: connectionRequirement(service),
     timeout: 1800,
   });
 }
@@ -371,6 +435,7 @@ async function disconnect() {
   }
   try {
     await disconnectProvider(service.id);
+    if (service.id === 'github') githubOverview.value = null;
     service.status = service.connectEnabled ? 'Not connected' : 'Coming soon';
     service.account = '';
     service.lastSynced = '';
@@ -387,6 +452,30 @@ async function disconnect() {
 </script>
 
 <style scoped lang="scss">
+.github-repo-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: var(--space-3) 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.85rem;
+}
+.github-repo-list a {
+  color: var(--color-text);
+  font-weight: 600;
+  text-decoration: none;
+}
+.github-repo-list a:hover {
+  text-decoration: underline;
+}
+.github-repo-list__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  color: var(--color-text-secondary);
+  font-size: 0.75rem;
+}
 .integrations-note-bar {
   display: flex;
   align-items: center;

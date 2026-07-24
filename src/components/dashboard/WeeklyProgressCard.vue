@@ -58,14 +58,14 @@ import { weeklyProgress as progress } from '@/data/dashboard.mock';
 
 <style scoped lang="scss">
 .weekly-progress-card {
-  gap: var(--space-2);
+  gap: var(--space-3);
   background: var(--color-surface);
 }
 
 .weekly-progress-card h2 {
   margin: 2px 0 0;
   font-size: clamp(1.125rem, 1.5vw, 1.375rem);
-  font-weight: 700;
+  font-weight: 650;
 }
 
 .weekly-progress-card__summary {
@@ -77,7 +77,7 @@ import { weeklyProgress as progress } from '@/data/dashboard.mock';
 .weekly-progress-card__summary strong {
   font-family: var(--font-heading);
   font-size: clamp(1.75rem, 2.6vw, 2.375rem);
-  font-weight: 700;
+  font-weight: 650;
   line-height: 0.9;
 }
 
@@ -98,7 +98,7 @@ import { weeklyProgress as progress } from '@/data/dashboard.mock';
   flex: 1;
   min-height: 64px;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: var(--space-2);
+  gap: var(--space-3);
 }
 
 .weekly-chart__day {
@@ -130,16 +130,15 @@ import { weeklyProgress as progress } from '@/data/dashboard.mock';
   align-items: flex-end;
   min-height: 0;
   overflow: hidden;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-pill);
-  background: var(--color-progress-track);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--color-text) 7%, transparent);
 }
 
 .weekly-chart__bar {
   width: 100%;
   min-height: 10%;
-  border-radius: var(--radius-pill);
-  background: var(--color-secondary);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--color-primary) 55%, transparent);
   transition: height var(--duration-slow) var(--ease-smooth-out);
 }
 
@@ -154,14 +153,8 @@ import { weeklyProgress as progress } from '@/data/dashboard.mock';
 }
 
 .weekly-chart__label--current {
-  display: inline-grid;
-  min-width: 1.5rem;
-  place-items: center;
-  margin: 0 auto;
-  padding: 2px;
-  border-radius: var(--radius-pill);
-  color: var(--color-on-primary);
-  background: var(--color-primary);
+  color: var(--color-primary);
+  font-weight: 700;
 }
 
 @media (max-width: 767px) {

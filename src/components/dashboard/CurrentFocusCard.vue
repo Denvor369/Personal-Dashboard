@@ -48,9 +48,10 @@ import { currentFocus as focus } from '@/data/dashboard.mock';
 
 <style scoped lang="scss">
 .current-focus-card {
-  gap: var(--space-3);
-  color: var(--color-on-focus-card);
-  background: var(--color-focus-card);
+  gap: var(--space-4);
+  border-left: 3px solid var(--color-primary) !important;
+  color: var(--color-text);
+  background: var(--color-surface);
 }
 
 .current-focus-card__header,
@@ -62,12 +63,13 @@ import { currentFocus as focus } from '@/data/dashboard.mock';
 }
 
 .current-focus-card__header > span {
-  padding: 0.25rem 0.65rem;
-  border: 1px solid currentColor;
+  padding: 0.3rem 0.65rem;
   border-radius: var(--radius-pill);
+  color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
   font-family: var(--font-control);
-  font-size: 0.68rem;
-  opacity: 0.82;
+  font-size: 0.7rem;
+  font-weight: 600;
 }
 
 .current-focus-card__intro {
@@ -75,20 +77,21 @@ import { currentFocus as focus } from '@/data/dashboard.mock';
 }
 
 .current-focus-card h2 {
-  margin: var(--space-1) 0 0;
-  font-size: clamp(1.25rem, 1.8vw, 1.6rem);
-  font-weight: 700;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
+  margin: var(--space-2) 0 0;
+  font-size: clamp(1.35rem, 1.8vw, 1.75rem);
+  font-weight: 650;
+  line-height: 1.18;
+  letter-spacing: -0.025em;
 }
 
 .current-focus-card__desc {
   display: -webkit-box;
-  margin: var(--space-1) 0 0;
+  max-width: 44ch;
+  margin: var(--space-2) 0 0;
   overflow: hidden;
-  font-size: 0.84rem;
-  font-style: italic;
-  line-height: 1.4;
+  color: var(--color-text-secondary);
+  font-size: 0.82rem;
+  line-height: 1.5;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
 }
@@ -99,15 +102,14 @@ import { currentFocus as focus } from '@/data/dashboard.mock';
   align-items: center;
   gap: var(--space-3);
   margin-top: auto;
-  padding: var(--space-3);
-  border: 1px solid color-mix(in srgb, currentColor 25%, transparent);
-  border-radius: var(--radius-sm);
-  background: color-mix(in srgb, var(--color-focus-card) 78%, var(--color-shell));
+  padding-top: var(--space-4);
+  border-top: 1px solid color-mix(in srgb, var(--color-text) 16%, transparent);
 }
 
 .current-focus-card__progress-value {
   font-family: var(--font-heading);
-  font-size: clamp(2rem, 3vw, 2.75rem);
+  font-size: clamp(2rem, 2.7vw, 2.6rem);
+  font-weight: 650;
   line-height: 1;
 }
 
@@ -124,7 +126,7 @@ import { currentFocus as focus } from '@/data/dashboard.mock';
 }
 
 .current-focus-card__progress-meta small {
-  opacity: 0.72;
+  color: var(--color-text-muted);
 }
 
 .current-focus-card > .q-btn {
@@ -135,11 +137,10 @@ import { currentFocus as focus } from '@/data/dashboard.mock';
 }
 
 .current-focus-card__track {
-  height: 8px;
+  height: 6px;
   overflow: hidden;
   border-radius: var(--radius-pill);
-  border: 1px solid var(--color-border);
-  background: var(--color-focus-progress-track);
+  background: var(--color-progress-track);
 }
 
 .current-focus-card__track span {
@@ -147,7 +148,7 @@ import { currentFocus as focus } from '@/data/dashboard.mock';
   width: 72%;
   height: 100%;
   border-radius: inherit;
-  background: var(--color-focus-progress-fill);
+  background: var(--color-primary);
 }
 
 @media (max-width: 767px) {

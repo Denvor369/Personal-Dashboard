@@ -61,9 +61,9 @@ onBeforeUnmount(() => animationFrame && cancelAnimationFrame(animationFrame));
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-4) var(--space-6);
+  gap: var(--space-5) var(--space-7);
   flex-wrap: wrap;
-  padding: clamp(4px, 0.6vw, 10px) clamp(4px, 0.8vw, 12px);
+  padding: var(--space-2) var(--space-1) 0;
 }
 
 .welcome-overview__intro {
@@ -71,66 +71,59 @@ onBeforeUnmount(() => animationFrame && cancelAnimationFrame(animationFrame));
 }
 
 .welcome-overview__intro h1 {
-  margin: 2px 0 0;
-  font-size: clamp(1.85rem, 2.7vw, 2.65rem);
-  font-weight: 700;
-  line-height: 1.02;
-  letter-spacing: -0.03em;
+  margin: var(--space-1) 0 0;
+  font-size: clamp(1.85rem, 2.3vw, 2.4rem);
+  font-weight: 650;
+  line-height: 1.08;
+  letter-spacing: -0.035em;
 }
 
 .welcome-overview__context {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  margin: 4px 0 0;
+  margin: var(--space-2) 0 0;
   color: var(--color-text-secondary);
   font-family: var(--font-body);
-  font-size: 0.78rem;
-  font-style: italic;
+  font-size: 0.82rem;
 }
 
 .welcome-overview__stats {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  overflow: hidden;
-  border: var(--border-thin);
-  border-radius: var(--radius-md);
 }
 
 .overview-stat {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  min-width: 108px;
-  padding: var(--space-2) var(--space-3);
+  gap: 3px;
+  min-width: 132px;
+  padding: var(--space-1) var(--space-5);
   color: var(--color-text);
-  background: var(--color-surface);
 }
 
 .overview-stat + .overview-stat {
-  border-left: var(--border-thin);
+  border-left: 1px solid color-mix(in srgb, var(--color-text) 16%, transparent);
 }
 
 .overview-stat__label {
   font-family: var(--font-control);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  color: var(--color-text-muted);
+  font-size: 0.7rem;
+  font-weight: 600;
   white-space: nowrap;
 }
 
 .overview-stat strong {
   font-family: var(--font-heading);
-  font-size: clamp(1.75rem, 2.2vw, 2.25rem);
-  font-weight: 700;
+  font-size: clamp(1.45rem, 1.8vw, 1.9rem);
+  font-weight: 650;
   line-height: 1;
 }
 
 .overview-stat small {
   font-family: var(--font-body);
-  font-size: 0.72rem;
-  font-style: italic;
+  font-size: 0.68rem;
   color: var(--color-text-muted);
   white-space: nowrap;
 }
@@ -139,7 +132,7 @@ onBeforeUnmount(() => animationFrame && cancelAnimationFrame(animationFrame));
   .welcome-overview {
     align-items: stretch;
     flex-direction: column;
-    gap: var(--space-3);
+    gap: var(--space-4);
     padding-top: var(--space-2);
   }
 
@@ -149,6 +142,7 @@ onBeforeUnmount(() => animationFrame && cancelAnimationFrame(animationFrame));
 
   .overview-stat {
     min-width: 0;
+    padding-inline: var(--space-3);
   }
 }
 

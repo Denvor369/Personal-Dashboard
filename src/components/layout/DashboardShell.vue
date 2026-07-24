@@ -18,18 +18,7 @@ import DashboardTopNavigation from '@/components/layout/DashboardTopNavigation.v
 .dashboard-page {
   min-height: 100dvh;
   padding: clamp(0.75rem, 1.8vw, 1.75rem);
-  background:
-    radial-gradient(
-      circle at 8% 0%,
-      color-mix(in srgb, var(--brand-mint) 18%, transparent),
-      transparent 30rem
-    ),
-    radial-gradient(
-      circle at 92% 100%,
-      color-mix(in srgb, var(--color-primary) 10%, transparent),
-      transparent 34rem
-    ),
-    var(--color-background);
+  background: var(--color-background);
 }
 
 .dashboard-shell {
@@ -73,13 +62,7 @@ import DashboardTopNavigation from '@/components/layout/DashboardTopNavigation.v
 @media (max-width: 800px) {
   .dashboard-page {
     padding: var(--space-2) var(--space-2) 108px;
-    background:
-      radial-gradient(
-        circle at 0% 0%,
-        color-mix(in srgb, var(--brand-mint) 16%, transparent),
-        transparent 20rem
-      ),
-      var(--color-background);
+    background: var(--color-background);
   }
 
   .dashboard-shell {
